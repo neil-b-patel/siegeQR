@@ -77,7 +77,7 @@ rightBtn.addEventListener("mousedown", mvRight);
 rightBtn.addEventListener("mouseup", stopX);
 
 var gameArea = {
-  c: document.getElementById("c"),
+    c: document.getElementById("c"),
   start: function () {
     this.c.width = 1000;
     this.c.height = 450;
@@ -91,7 +91,7 @@ var gameArea = {
 };
 
 function startGame() {
-  player = new Player(0, 0);
+  player = new Player(0, gameArea.c.height);
   gameArea.start();
 
   //drops player in
@@ -100,8 +100,6 @@ function startGame() {
 function updateGameArea() {
   gameArea.clear();
   player.newPos();
-  // if (player.y < (gameArea.c.height - player.height)) {player.y += 10};
-
   player.update(gameArea.ctx);
 }
 
@@ -126,7 +124,7 @@ function stopX() {
 }
 
 function stopY() {
-  player.spdY = 0;
+  player.spdY = gameArea.c.height - 50;
 }
 
 startGame();

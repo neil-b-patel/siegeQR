@@ -32,11 +32,6 @@ function Player(x, y) {
     this.x = this.spdX;
     this.y = this.spdY;
   }
-
- 
- 
- 
-
 }
 
 export {Player as default}

@@ -73,7 +73,7 @@ function is_hit(v, a, h, d) {
     if (tr[RNG] > (d - 5) && tr[RNG] < (d + 5)) {
         console.log("HIT")
         return true;
-    }
+    }   
 
     console.log("MISS")
     return false;
