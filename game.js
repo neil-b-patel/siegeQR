@@ -11,12 +11,12 @@ window.addEventListener("keydown", function (e) {
     return;
   }
 
-  switch(e.code) {
+  switch (e.code) {
     case "KeyW":
     case "ArrowUp":
       mvUp();
       break;
-    
+
     case "KeyS":
     case "ArrowDown":
       mvDown();
@@ -31,11 +31,15 @@ window.addEventListener("keydown", function (e) {
     case "ArrowRight":
       mvRight();
       break;
+
+    case "Space":
+      player.attack();
+      break;
+
   }
 
   e.preventDefault();
-
-})
+});
 
 // ADD LISTENER FOR ANY KEY UP, STOP MOVING PLAYER WITH KEYBOARD CONTROLS
 window.addEventListener("keyup", function (e) {
@@ -43,9 +47,9 @@ window.addEventListener("keyup", function (e) {
     return;
   }
 
-  switch(e.code) {
+  switch (e.code) {
     case "KeyW":
-    case "ArrowUp":  
+    case "ArrowUp":
     case "KeyS":
     case "ArrowDown":
       stopY();
@@ -59,8 +63,7 @@ window.addEventListener("keyup", function (e) {
   }
 
   e.preventDefault();
-
-})
+});
 
 // RETRIEVE BUTTONS FROM HTML AND ADD LISTENERS WITH MOVEMENT CALLBACKS
 var upBtn = document.getElementById("upBtn");
@@ -82,7 +85,7 @@ rightBtn.addEventListener("mouseup", stopX);
 
 // CATCH-ALL VAR FOR GAME
 var gameArea = {
-    c: document.getElementById("c"),
+  c: document.getElementById("c"),
   start: function () {
     this.c.width = WIDTH;
     this.c.height = HEIGHT;
@@ -100,13 +103,15 @@ function startGame() {
   gameArea.start();
 
   // spawn player at bottom left
-  player = new Player(0, HEIGHT - HEIGHT/5);
+  player = new Player(0, HEIGHT - HEIGHT / 5);
 }
 
 // GAME LOOP
+var i = 0;
 function updateGameArea() {
   gameArea.clear();
   player.newPos();
+  player.updateAtk(gameArea.ctx);
   player.update(gameArea.ctx);
 }
 

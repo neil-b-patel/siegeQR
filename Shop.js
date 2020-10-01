@@ -1,3 +1,10 @@
+// if enemies collides with tower, -1 lvl height
+// if carpenter hired, +1 lvl height every 10s (while < maxHght)
+// if height upgrade, +1 maxHght
+// at start of lvl, lvlHght = maxHght
+// price of height upgrade increases 100x each time
+
+
 // weapons
 let wpn;
 const wpns = ["rubber band", "slingshot", "bow n' arrow", "catapult", "cannon"];
