@@ -14,28 +14,27 @@ window.addEventListener("keydown", function (e) {
   switch (e.code) {
     case "KeyW":
     case "ArrowUp":
-      mvUp();
+      angleUp();
       break;
 
     case "KeyS":
     case "ArrowDown":
-      mvDown();
+      angleDown();
       break;
 
     case "KeyA":
     case "ArrowLeft":
-      mvLeft();
+      velocityDown();
       break;
 
     case "KeyD":
     case "ArrowRight":
-      mvRight();
+      velocityUp();
       break;
 
     case "Space":
       player.attack();
       break;
-
   }
 
   e.preventDefault();
@@ -52,13 +51,13 @@ window.addEventListener("keyup", function (e) {
     case "ArrowUp":
     case "KeyS":
     case "ArrowDown":
-      stopY();
+      resetAngle();
       break;
     case "KeyA":
     case "ArrowLeft":
     case "KeyD":
     case "ArrowRight":
-      stopX();
+      resetVelocity();
       break;
   }
 
@@ -66,22 +65,22 @@ window.addEventListener("keyup", function (e) {
 });
 
 // RETRIEVE BUTTONS FROM HTML AND ADD LISTENERS WITH MOVEMENT CALLBACKS
-var upBtn = document.getElementById("upBtn");
-var downBtn = document.getElementById("downBtn");
-var leftBtn = document.getElementById("leftBtn");
-var rightBtn = document.getElementById("rightBtn");
-
-upBtn.addEventListener("mousedown", mvUp);
-upBtn.addEventListener("mouseup", stopY);
-
-downBtn.addEventListener("mousedown", mvDown);
-downBtn.addEventListener("mouseup", stopY);
-
-leftBtn.addEventListener("mousedown", mvLeft);
-leftBtn.addEventListener("mouseup", stopX);
-
-rightBtn.addEventListener("mousedown", mvRight);
-rightBtn.addEventListener("mouseup", stopX);
+// var upBtn = document.getElementById("upBtn");
+// var downBtn = document.getElementById("downBtn");
+// var leftBtn = document.getElementById("leftBtn");
+// var rightBtn = document.getElementById("rightBtn");
+//
+// upBtn.addEventListener("mousedown", mvUp);
+// upBtn.addEventListener("mouseup", stopY);
+//
+// downBtn.addEventListener("mousedown", mvDown);
+// downBtn.addEventListener("mouseup", stopY);
+//
+// leftBtn.addEventListener("mousedown", mvLeft);
+// leftBtn.addEventListener("mouseup", stopX);
+//
+// rightBtn.addEventListener("mousedown", mvRight);
+// rightBtn.addEventListener("mouseup", stopX);
 
 // CATCH-ALL VAR FOR GAME
 var gameArea = {
@@ -110,34 +109,103 @@ function startGame() {
 var i = 0;
 function updateGameArea() {
   gameArea.clear();
+  angleBar();
+  velocityBar();
   player.newPos();
   player.updateAtk(gameArea.ctx);
   player.update(gameArea.ctx);
 }
 
-// MOVEMENT FUNCTIONS
-function mvUp() {
-  player.spdY -= 10;
+// ANGLE FUNCTIONS
+function angleUp() {
+  player.angle += 5;
+  resetAngle();
 }
 
-function mvDown() {
-  player.spdY += 10;
+function angleDown() {
+  player.angle -= 5;
+  resetAngle();
 }
 
-function mvLeft() {
-  player.spdX -= 15;
+function resetAngle() {
+  if (player.angle + 5 > 90) {
+    player.angle = 90;
+  } else if (player.angle - 5 < 0) {
+    player.angle = 0;
+  }
 }
 
-function mvRight() {
-  player.spdX += 15;
+// VELOCITY FUNCTIONS
+function velocityUp() {
+  if ((player.velocity + 5) > 50) {
+    player.velocity = 50;
+  }
+  else {
+    player.velocity += 1;
+  }
 }
 
-function stopX() {
-  player.spdX = 0;
+function velocityDown() {
+  if ((player.velocity - 5) < 0) {
+    player.velocity = 0;
+  }
+  else {
+    player.velocity -= 1;
+  }
 }
 
-function stopY() {
-  player.spdY = 0;
+function resetVelocity() {
+  player.velocity = 0;
 }
+
+// HUD FUNCTIONS
+function angleBar() {
+  let ctx = gameArea.ctx;
+  ctx.fillStyle = "blue";
+  ctx.fillRect(100, 0, 250, 30);
+
+  ctx.font = "1.5em Monospace";
+  ctx.fillStyle = "white";
+  ctx.fillText("ANGLE", 20, WIDTH / 43);
+  ctx.fillText("The angle is: " + player.angle, 140, 22);
+
+}
+
+function velocityBar() {
+  let ctx = gameArea.ctx;
+  ctx.fillStyle = "blue";
+  ctx.fillRect(100, 50, 250, 30);
+
+
+  ctx.font = "1.5em Monospace"
+  ctx.fillStyle = "white"
+  ctx.fillText("VELOCITY",5, WIDTH / 14);
+  ctx.fillText("The velocity is: " + player.velocity, 120, 72);
+}
+
+// EX-MOVEMENT FUNCTIONS
+// function mvUp() {
+// player.spdY -= 10;
+// }
+//
+// function mvDown() {
+// player.spdY += 10;
+// }
+//
+// function mvLeft() {
+// player.spdX -= 15;
+// }
+//
+// function mvRight() {
+// player.spdX += 15;
+// }
+//
+// function stopX() {
+// player.spdX = 0;
+// }
+//
+// function stopY() {
+// player.spdY = 0;
+// }
 
 startGame();

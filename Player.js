@@ -18,6 +18,9 @@ function Player(x, y) {
   this.spd = 1;
   this.imp = 1;
 
+  this.angle = 0;
+  this.velocity = 0;
+
   this.projectiles = [];
 
   this.update = function (ctx) {
@@ -60,7 +63,7 @@ function Player(x, y) {
 
   // ATTACK METHODS
   this.attack = function (ctx) {
-    this.projectiles.push(new Projectile(this, 1, 45, 0));
+    this.projectiles.push(new Projectile(this, this.velocity, this.angle, 0));
   };
 
   this.updateAtk = function (ctx) {
@@ -80,8 +83,8 @@ const VX = 5;
 const VY = 6;
 const IMP_SPD = 7;
 
-// acceleration of gravity on earth
-const gravity = 9.81;
+// acceleration of gravity that 'feels natural' in game
+const gravity = 35.00;
 
 function Projectile(player, v, a, h) {
   this.player = player;
@@ -98,13 +101,14 @@ function Projectile(player, v, a, h) {
 
   this.range;
   this.maxHeight;
-  this.time;
+  this.totalTime;
   this.upTime;
   this.downTime;
   this.velocityX;
   this.velocityY;
   this.impactSpd;
 
+  this.time = 0;
   this.rising = true;
 
   this.update = function (ctx) {
@@ -112,29 +116,44 @@ function Projectile(player, v, a, h) {
 
     let trajData = this.calcTraj(this.velocity, this.angle, this.height);
 
-    this.range = trajData[RNG];
-    this.maxHeight = trajData[HGHT];
-    this.time = trajData[T];
-    this.upTime = trajData[UP_T];
-    this.downTime = trajData[DN_T];
-    this.velocityX = trajData[VX];
-    this.velocityY = trajData[VY];
-    this.impactSpd = trajData[IMP_SPD];
+    this.setTrajData(trajData);
+    this.moveProjectile();
 
-    this.x += this.velocityX * 5;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  };
 
+  this.moveProjectile = function () {
+    // move along x-axis
+    this.time += 1 / 60;
+    // this.x += this.velocityX * this.time * Math.cos(this.theta);
+    
+    this.x += this.velocityX * this.time;
+
+    // check if this has reached maxHeight of projectile arc
     if (this.y <= this.maxHeight) {
       this.rising = false;
       console.log("peak reached");
     }
 
-    if (this.rising) {
-      this.y -= this.velocityY * 6;
-    } else {
-      this.y += this.velocityY * 6;
-    }
+    // move along y-axis (up if rising, down if not rising)
+    this.y -= (this.velocityY * this.time) - (0.5 * gravity * (this.time ** 2));
+    // if (this.rising) {
+      // this.y = (this.velocityY * (this.time)) - (0.5 * gravity * (this.time ** 2));
+    // } else {
+      // this.y = (this.velocityY * (this.time)) - (0.5 * gravity * (this.time ** 2));
+      // this.y += (0.5 * gravity * (this.time ** 2));
 
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+  };
+
+  this.setTrajData = function (trajData) {
+    this.range = trajData[RNG];
+    this.maxHeight = trajData[HGHT];
+    this.totalTime = trajData[T];
+    this.upTime = trajData[UP_T];
+    this.downTime = trajData[DN_T];
+    this.velocityX = trajData[VX];
+    this.velocityY = trajData[VY];
+    this.impactSpd = trajData[IMP_SPD];
   };
 
   this.calcTraj = function (velocity, angle, height) {
@@ -149,16 +168,16 @@ function Projectile(player, v, a, h) {
     let upTime = velocityY / gravity;
 
     // substitute upT for t in vertical motion equation to calculate max height
-    let maxHeight = height + velocityY * upTime - 0.5 * gravity * upTime ** 2;
+    let maxHeight = height + (velocityY * upTime) - (0.5 * gravity * (upTime ** 2));
 
     // time from maximum height to impact
     let downTime = Math.sqrt((2 * maxHeight) / gravity);
 
     // total flight time
-    let time = upTime + downTime;
+    let totalTime = upTime + downTime;
 
     // the maximum range (distance to impact)
-    let range = velocityX * time;
+    let range = velocityX * totalTime;
 
     // projectile speed at impact
     let impactSpd = Math.sqrt(velocityX ** 2 + (gravity * downTime) ** 2);
@@ -173,7 +192,7 @@ function Projectile(player, v, a, h) {
     return [
       range,
       maxHeight,
-      time,
+      totalTime,
       upTime,
       downTime,
       velocityX,
