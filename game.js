@@ -1,4 +1,4 @@
-import { Player, Projectile } from "./Player.js";
+import Player from "./Player.js";
 
 var FPS = 60;
 var HEIGHT = 450;

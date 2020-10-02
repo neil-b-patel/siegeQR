@@ -83,9 +83,9 @@ const VX = 5;
 const VY = 6;
 const IMP_SPD = 7;
 
-// acceleration of gravity that 'feels natural' in game 
+// acceleration of gravity that 'feels natural' in game
 // 4 times the gravity of earth
-const gravity = 4 * (9.81);
+const gravity = 4 * 9.81;
 
 function Projectile(player, v, a, h) {
   this.player = player;
@@ -125,9 +125,9 @@ function Projectile(player, v, a, h) {
 
   this.moveProjectile = function () {
     // move along x-axis
-    this.time += 1/60;
+    this.time += 1 / 60;
     // this.x += this.velocityX * this.time * Math.cos(this.theta);
-    
+
     this.x += this.velocityX * this.time;
 
     // check if this has reached maxHeight of projectile arc
@@ -137,13 +137,12 @@ function Projectile(player, v, a, h) {
     }
 
     // move along y-axis (up if rising, down if not rising)
-    this.y -= (this.velocityY * this.time) - (0.5 * gravity * (this.time ** 2));
+    this.y -= this.velocityY * this.time - 0.5 * gravity * this.time ** 2;
     // if (this.rising) {
-      // this.y = (this.velocityY * (this.time)) - (0.5 * gravity * (this.time ** 2));
+    // this.y = (this.velocityY * (this.time)) - (0.5 * gravity * (this.time ** 2));
     // } else {
-      // this.y = (this.velocityY * (this.time)) - (0.5 * gravity * (this.time ** 2));
-      // this.y += (0.5 * gravity * (this.time ** 2));
-
+    // this.y = (this.velocityY * (this.time)) - (0.5 * gravity * (this.time ** 2));
+    // this.y += (0.5 * gravity * (this.time ** 2));
   };
 
   this.setTrajData = function (trajData) {
@@ -169,7 +168,7 @@ function Projectile(player, v, a, h) {
     let upTime = velocityY / gravity;
 
     // substitute upT for t in vertical motion equation to calculate max height
-    let maxHeight = height + (velocityY * upTime) - (0.5 * gravity * (upTime ** 2));
+    let maxHeight = height + velocityY * upTime - 0.5 * gravity * upTime ** 2;
 
     // time from maximum height to impact
     let downTime = Math.sqrt((2 * maxHeight) / gravity);
@@ -203,5 +202,4 @@ function Projectile(player, v, a, h) {
   };
 }
 
-export { Player as Player };
-export { Projectile as Projectile}
+export { Player as default };
