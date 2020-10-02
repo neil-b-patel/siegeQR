@@ -1,4 +1,4 @@
-import Player from "./Player.js";
+import { Player, Projectile } from "./Player.js";
 
 var FPS = 60;
 var HEIGHT = 450;
@@ -106,11 +106,11 @@ function startGame() {
 }
 
 // GAME LOOP
-var i = 0;
 function updateGameArea() {
   gameArea.clear();
   angleBar();
   velocityBar();
+  // drawArc();
   player.newPos();
   player.updateAtk(gameArea.ctx);
   player.update(gameArea.ctx);
@@ -137,19 +137,17 @@ function resetAngle() {
 
 // VELOCITY FUNCTIONS
 function velocityUp() {
-  if ((player.velocity + 5) > 50) {
-    player.velocity = 50;
-  }
-  else {
+  if (player.velocity + 1 > 25) {
+    player.velocity = 25;
+  } else {
     player.velocity += 1;
   }
 }
 
 function velocityDown() {
-  if ((player.velocity - 5) < 0) {
+  if (player.velocity - 1 < 25) {
     player.velocity = 0;
-  }
-  else {
+  } else {
     player.velocity -= 1;
   }
 }
@@ -168,7 +166,6 @@ function angleBar() {
   ctx.fillStyle = "white";
   ctx.fillText("ANGLE", 20, WIDTH / 43);
   ctx.fillText("The angle is: " + player.angle, 140, 22);
-
 }
 
 function velocityBar() {
@@ -176,12 +173,19 @@ function velocityBar() {
   ctx.fillStyle = "blue";
   ctx.fillRect(100, 50, 250, 30);
 
-
-  ctx.font = "1.5em Monospace"
-  ctx.fillStyle = "white"
-  ctx.fillText("VELOCITY",5, WIDTH / 14);
+  ctx.font = "1.5em Monospace";
+  ctx.fillStyle = "white";
+  ctx.fillText("VELOCITY", 5, WIDTH / 14);
   ctx.fillText("The velocity is: " + player.velocity, 120, 72);
 }
+
+// function drawArc() {
+//   let ctx = gameArea.ctx;
+//   ctx.fillStyle = "grey";
+//   ctx.moveTo(player.x, player.y);
+//   ctx.quadraticCurveTo(20, 80, 500, HEIGHT);
+//   ctx.fill();
+// }
 
 // EX-MOVEMENT FUNCTIONS
 // function mvUp() {

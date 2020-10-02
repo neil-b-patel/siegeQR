@@ -83,8 +83,9 @@ const VX = 5;
 const VY = 6;
 const IMP_SPD = 7;
 
-// acceleration of gravity that 'feels natural' in game
-const gravity = 35.00;
+// acceleration of gravity that 'feels natural' in game 
+// 4 times the gravity of earth
+const gravity = 4 * (9.81);
 
 function Projectile(player, v, a, h) {
   this.player = player;
@@ -124,7 +125,7 @@ function Projectile(player, v, a, h) {
 
   this.moveProjectile = function () {
     // move along x-axis
-    this.time += 1 / 60;
+    this.time += 1/60;
     // this.x += this.velocityX * this.time * Math.cos(this.theta);
     
     this.x += this.velocityX * this.time;
@@ -202,4 +203,5 @@ function Projectile(player, v, a, h) {
   };
 }
 
-export { Player as default };
+export { Player as Player };
+export { Projectile as Projectile}
