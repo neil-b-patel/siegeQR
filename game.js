@@ -57,30 +57,12 @@ window.addEventListener("keyup", function (e) {
     case "ArrowLeft":
     case "KeyD":
     case "ArrowRight":
-      resetVelocity();
+      // resetVelocity();
       break;
   }
 
   e.preventDefault();
 });
-
-// RETRIEVE BUTTONS FROM HTML AND ADD LISTENERS WITH MOVEMENT CALLBACKS
-// var upBtn = document.getElementById("upBtn");
-// var downBtn = document.getElementById("downBtn");
-// var leftBtn = document.getElementById("leftBtn");
-// var rightBtn = document.getElementById("rightBtn");
-//
-// upBtn.addEventListener("mousedown", mvUp);
-// upBtn.addEventListener("mouseup", stopY);
-//
-// downBtn.addEventListener("mousedown", mvDown);
-// downBtn.addEventListener("mouseup", stopY);
-//
-// leftBtn.addEventListener("mousedown", mvLeft);
-// leftBtn.addEventListener("mouseup", stopX);
-//
-// rightBtn.addEventListener("mousedown", mvRight);
-// rightBtn.addEventListener("mouseup", stopX);
 
 // CATCH-ALL VAR FOR GAME
 var gameArea = {
@@ -97,12 +79,37 @@ var gameArea = {
   },
 };
 
+var spaceBtn = document.getElementById("spaceBtn");
+document.getElementById("c").addEventListener("click", function () {
+  if (player) {
+    player.attack();
+  }
+});
+spaceBtn.addEventListener("click", function() {
+  if (player) {
+    player.attack();
+  }
+})
+
+
+
 // START GAME
 function startGame() {
   gameArea.start();
 
   // spawn player at bottom left
   player = new Player(0, HEIGHT - HEIGHT / 5);
+
+  // RETRIEVE BUTTONS FROM HTML AND ADD LISTENERS WITH MOVEMENT CALLBACKS
+  var upBtn = document.getElementById("upBtn");
+  var downBtn = document.getElementById("downBtn");
+  var leftBtn = document.getElementById("leftBtn");
+  var rightBtn = document.getElementById("rightBtn");
+
+  upBtn.addEventListener("click", angleUp);
+  downBtn.addEventListener("click", angleDown);
+  leftBtn.addEventListener("click", velocityDown);
+  rightBtn.addEventListener("click", velocityUp);
 }
 
 // GAME LOOP
@@ -110,8 +117,8 @@ function updateGameArea() {
   gameArea.clear();
   angleBar();
   velocityBar();
-  // drawArc();
-  player.newPos();
+  // player.newPos();
+  // player.drawArc(gameArea.ctx);
   player.updateAtk(gameArea.ctx);
   player.update(gameArea.ctx);
 }
@@ -145,7 +152,7 @@ function velocityUp() {
 }
 
 function velocityDown() {
-  if (player.velocity - 1 < 25) {
+  if (player.velocity - 1 < 0) {
     player.velocity = 0;
   } else {
     player.velocity -= 1;
@@ -178,14 +185,6 @@ function velocityBar() {
   ctx.fillText("VELOCITY", 5, WIDTH / 14);
   ctx.fillText("The velocity is: " + player.velocity, 120, 72);
 }
-
-// function drawArc() {
-//   let ctx = gameArea.ctx;
-//   ctx.fillStyle = "grey";
-//   ctx.moveTo(player.x, player.y);
-//   ctx.quadraticCurveTo(20, 80, 500, HEIGHT);
-//   ctx.fill();
-// }
 
 // EX-MOVEMENT FUNCTIONS
 // function mvUp() {

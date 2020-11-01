@@ -1,5 +1,20 @@
 const FPS = 60;
-const MAX_SPD = 15;
+const HEIGHT = 450;
+const WIDTH = 1000;
+
+// indices for result array returned by calc_traj
+const RNG = 0;
+const HGHT = 1;
+const T = 2;
+const UP_T = 3;
+const DN_T = 4;
+const VX = 5;
+const VY = 6;
+const IMP_SPD = 7;
+
+// acceleration of gravity that 'feels natural' in game
+// 4 times the gravity of earth
+const gravity = 4 * 9.81;
 
 function Player(x, y) {
   this.x = x;
@@ -28,37 +43,13 @@ function Player(x, y) {
     ctx.fillRect(this.x, this.y, this.width, this.height);
   };
 
-  // MOVEMENT METHODS
-  this.newPos = function () {
-    this.lmtSpd();
-    this.x += this.spdX;
-    this.y += this.spdY;
-    this.inBound();
-  };
-  // limit movement spd to MAX_SPD
-  this.lmtSpd = function () {
-    if (this.spdX > MAX_SPD) {
-      this.spdX = MAX_SPD;
-    } else if (this.spdX < -MAX_SPD) {
-      this.spdX = -MAX_SPD;
-    }
-    if (this.spdY > MAX_SPD) {
-      this.spdY = MAX_SPD;
-    } else if (this.spdY < -MAX_SPD) {
-      this.spdY = -MAX_SPD;
-    }
-  };
-  this.inBound = function () {
-    if (this.x < 0) {
-      this.x = 0;
-    } else if (this.x > c.width - this.width) {
-      this.x = c.width - this.width;
-    }
-    if (this.y < 0) {
-      this.y = 0;
-    } else if (this.y > c.height - this.height) {
-      this.y = c.height - this.height;
-    }
+  this.drawArc = function (ctx) {
+    let trajData = calcTraj(this.velocity, this.angle, this.lvlHght);
+    ctx.fillStyle = "grey";
+    ctx.moveTo(0, 100);
+    // ctx.quadraticCurveTo(this.x, trajData[HGHT], 0, trajData[RNG]);
+    ctx.quadraticCurveTo(trajData[RNG], 200, 50, 200);
+    ctx.fill();
   };
 
   // ATTACK METHODS
@@ -68,24 +59,16 @@ function Player(x, y) {
 
   this.updateAtk = function (ctx) {
     this.projectiles.forEach((p) => {
-      p.update(ctx);
+      // if the update function returns 1,
+      // then the projectile is destroyed so stop updating it
+      if (p.update(ctx)) {
+        let index = this.projectiles.indexOf(p);
+        this.projectiles.splice(index, 1);
+        console.log("PROJECTILE DELETED")
+      };
     });
   };
 }
-
-// indices for result array returned by calc_traj
-const RNG = 0;
-const HGHT = 1;
-const T = 2;
-const UP_T = 3;
-const DN_T = 4;
-const VX = 5;
-const VY = 6;
-const IMP_SPD = 7;
-
-// acceleration of gravity that 'feels natural' in game
-// 4 times the gravity of earth
-const gravity = 4 * 9.81;
 
 function Projectile(player, v, a, h) {
   this.player = player;
@@ -115,15 +98,17 @@ function Projectile(player, v, a, h) {
   this.update = function (ctx) {
     ctx.fillStyle = "white";
 
-    let trajData = this.calcTraj(this.velocity, this.angle, this.height);
-
+    let trajData = calcTraj(this.velocity, this.angle, this.height);
     this.setTrajData(trajData);
-    this.moveProjectile();
+
+    if (this.moveProjectile(ctx)) {
+      return 1;
+    };
 
     ctx.fillRect(this.x, this.y, this.width, this.height);
   };
 
-  this.moveProjectile = function () {
+  this.moveProjectile = function (ctx) {
     // move along x-axis
     this.time += 1 / 60;
     // this.x += this.velocityX * this.time * Math.cos(this.theta);
@@ -138,12 +123,46 @@ function Projectile(player, v, a, h) {
 
     // move along y-axis (up if rising, down if not rising)
     this.y -= this.velocityY * this.time - 0.5 * gravity * this.time ** 2;
-    // if (this.rising) {
-    // this.y = (this.velocityY * (this.time)) - (0.5 * gravity * (this.time ** 2));
-    // } else {
-    // this.y = (this.velocityY * (this.time)) - (0.5 * gravity * (this.time ** 2));
-    // this.y += (0.5 * gravity * (this.time ** 2));
+
+    // c collision with ground or 
+    if (! this.inBound(ctx)) {
+      if (this.isImpact(ctx)) {
+        return this.explodeProj(ctx);
+      } else {
+        return this.deleteProj(ctx);
+      }
+    }
   };
+
+  this.inBound = function (ctx) {
+    // check if projectile is past left-most or right-most boundary
+    if (this.x <= 0 || this.x >= WIDTH) {
+      console.log("OUT OF X-BOUNDS")
+      return false;
+    }
+    // check if projectile is past lower-most or upper-most boundary
+    if (this.y <= -50 || this.y >= HEIGHT) {
+      console.log("OUT OF Y-BOUNDS")
+      return false;
+    }
+    // projectile is within bounds
+    return true;
+  }
+
+  this.isImpact = function (ctx) {
+    if (this.y >= ctx.height) {
+      return true;
+    }
+  }
+
+  this.explodeProj = function (ctx) {
+    // draw explosion
+    return this.deleteProj();
+  }
+
+  this.deleteProj = function (ctx) {
+    return 1;
+  }
 
   this.setTrajData = function (trajData) {
     this.range = trajData[RNG];
@@ -155,51 +174,86 @@ function Projectile(player, v, a, h) {
     this.velocityY = trajData[VY];
     this.impactSpd = trajData[IMP_SPD];
   };
-
-  this.calcTraj = function (velocity, angle, height) {
-    // convert degrees to radians (theta)
-    let theta = (Math.PI * a) / 180.0;
-
-    // calc initial horizontal and vertical velocities
-    let velocityX = velocity * Math.cos(theta);
-    let velocityY = velocity * Math.sin(theta);
-
-    // calc when vertical velocity becomes 0 to determine time to maximum height
-    let upTime = velocityY / gravity;
-
-    // substitute upT for t in vertical motion equation to calculate max height
-    let maxHeight = height + velocityY * upTime - 0.5 * gravity * upTime ** 2;
-
-    // time from maximum height to impact
-    let downTime = Math.sqrt((2 * maxHeight) / gravity);
-
-    // total flight time
-    let totalTime = upTime + downTime;
-
-    // the maximum range (distance to impact)
-    let range = velocityX * totalTime;
-
-    // projectile speed at impact
-    let impactSpd = Math.sqrt(velocityX ** 2 + (gravity * downTime) ** 2);
-
-    // console.log("upward time: " + upTime + "\n");
-    // console.log("downward time: " + downTime + "\n");
-    // console.log("max height: " + maxHeight + "\n");
-    // console.log("flight time: "  + time + "\n");
-    // console.log("range: " + range + "\n");
-    // console.log("impact speed: " + impactSpd + "\n");
-
-    return [
-      range,
-      maxHeight,
-      totalTime,
-      upTime,
-      downTime,
-      velocityX,
-      velocityY,
-      impactSpd,
-    ];
-  };
 }
+
+var calcTraj = function (velocity, angle, height) {
+  // convert degrees to radians (theta)
+  let theta = (Math.PI * angle) / 180.0;
+
+  // calc initial horizontal and vertical velocities
+  let velocityX = velocity * Math.cos(theta);
+  let velocityY = velocity * Math.sin(theta);
+
+  // calc when vertical velocity becomes 0 to determine time to maximum height
+  let upTime = velocityY / gravity;
+
+  // substitute upT for t in vertical motion equation to calculate max height
+  let maxHeight = height + velocityY * upTime - 0.5 * gravity * upTime ** 2;
+
+  // time from maximum height to impact
+  let downTime = Math.sqrt((2 * maxHeight) / gravity);
+
+  // total flight time
+  let totalTime = upTime + downTime;
+
+  // the maximum range (distance to impact)
+  let range = velocityX * totalTime;
+
+  // projectile speed at impact
+  let impactSpd = Math.sqrt(velocityX ** 2 + (gravity * downTime) ** 2);
+
+  // console.log("upward time: " + upTime + "\n");
+  // console.log("downward time: " + downTime + "\n");
+  // console.log("max height: " + maxHeight + "\n");
+  // console.log("flight time: "  + time + "\n");
+  // console.log("range: " + range + "\n");
+  // console.log("impact speed: " + impactSpd + "\n");
+
+  return [
+    range,
+    maxHeight,
+    totalTime,
+    upTime,
+    downTime,
+    velocityX,
+    velocityY,
+    impactSpd,
+  ];
+};
+
+// MOVEMENT METHODS
+// this.newPos = function () {
+//   this.lmtSpd();
+//   this.x += this.spdX;
+//   this.y += this.spdY;
+//   this.inBound();
+// };
+
+// limit movement spd to MAX_SPD
+// this.lmtSpd = function () {
+//   if (this.spdX > MAX_SPD) {
+//     this.spdX = MAX_SPD;
+//   } else if (this.spdX < -MAX_SPD) {
+//     this.spdX = -MAX_SPD;
+//   }
+//   if (this.spdY > MAX_SPD) {
+//     this.spdY = MAX_SPD;
+//   } else if (this.spdY < -MAX_SPD) {
+//     this.spdY = -MAX_SPD;
+//   }
+// };
+
+// this.inBound = function () {
+//   if (this.x < 0) {
+//     this.x = 0;
+//   } else if (this.x > c.width - this.width) {
+//     this.x = c.width - this.width;
+//   }
+//   if (this.y < 0) {
+//     this.y = 0;
+//   } else if (this.y > c.height - this.height) {
+//     this.y = c.height - this.height;
+//   }
+// };
 
 export { Player as default };

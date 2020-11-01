@@ -9,12 +9,19 @@
     <canvas id="c" style="display: block; margin: auto; margin-top: 1em">
     </canvas>
 
-    <div id="btnRow" style="margin-left: 2.3em">
-      <button id="upBtn">UP -> Angle Up</button>
-      <button id="downBtn">DOWN -> Angle Down</button>
-      <button id="leftBtn">RIGHT -> Charge Velocity</button>
-      <button id="rightBtn">SPACE -> Fire Projectile</button>
+
+    <div style="margin-top: 1em; margin-bottom: 1em;">
+      CONTROLS:
     </div>
+
+    <div id="btnRow" style="margin-left: 2.3em; display: flex; justify-content:space-evenly;">
+      <button id="upBtn">UP / W -> Angle Up</button>
+      <button id="downBtn">DOWN / S -> Angle Down</button>
+      <button id="leftBtn">LEFT / A -> Velocity Down</button>
+      <button id="rightBtn">RIGHT / D -> Velocity Up</button>
+      <button id="spaceBtn">SPACE / CLICK ON GAME -> Fire Projectile</button>
+    </div>
+
   </body>
   <script type="module" src="game.js"></script>
 </html>
